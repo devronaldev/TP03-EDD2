@@ -4,58 +4,68 @@ namespace TP03_EDD2.Controllers;
 
 public class Escola
 {
-    public Curso[] cursos = new Curso[5];
+    private Curso[] _cursos = new Curso[5];
+    private int _numCursos = 0;
 
-    public Escola()
+    public string Nome { get; private set; }
+        
+    public Curso[] GetCursos() => _cursos;
+    public int GetNumCursos() => _numCursos;
+
+    public Escola(string nome)
     {
-        for (int i = 0; i < 5; i++)
-        {
-            cursos[i] = new Curso();
-        }
+        Nome = nome;
     }
-    
-    public bool adicionarCurso(Curso c)
+
+    public bool AdicionarCurso(Curso curso)
     {
-        int newId = 1;
-        if (cursos.Any(curso => curso.IdCurso != -1))
+        if (_numCursos < 5)
         {
-            newId = cursos.Where(curso => curso.IdCurso != -1).Max(curso => curso.IdCurso) + 1;
-        }
-        
-        c.IdCurso = newId;
-        
-        for (int i = 0; i < cursos.Length; i++)
-        {
-            if (cursos[i].IdCurso == -1)
-            {
-                cursos[i] = c;
-                return true;
-            }
+            _cursos[_numCursos] = curso;
+            _numCursos++;
+            return true;
         }
         return false;
     }
 
-    public Curso? PesquisarCurso(Curso c)
+    public Curso PesquisarCurso(int idCurso)
     {
-        for (int i = 0; i < cursos.Length; i++)
+        for (int i = 0; i < _numCursos; i++)
         {
-            if (cursos[i].Equals(c))
+            if (_cursos[i].Id == idCurso)
             {
-                return cursos[i];
+                return _cursos[i];
             }
         }
         return null;
     }
 
-    public bool RemoverCurso(Curso c)
+    public bool RemoverCurso(Curso curso)
     {
-        for (int i = 0; i < cursos.Length; i++)
+        if (curso.GetNumDisciplinas() > 0)
         {
-            if (cursos[i].Equals(c))
+            return false; // Não pode remover se tiver disciplinas
+        }
+
+        int index = -1;
+        for (int i = 0; i < _numCursos; i++)
+        {
+            if (_cursos[i].Id == curso.Id)
             {
-                cursos[i] = new Curso();
-                return true;
+                index = i;
+                break;
             }
+        }
+
+        if(index != -1)
+        {
+            for (int i = index; i < _numCursos - 1; i++)
+            {
+                _cursos[i] = _cursos[i + 1];
+            }
+            _numCursos--;
+            _cursos[_numCursos] = null;
+            return true;
         }
         return false;
     }
